@@ -28,53 +28,34 @@ def NaiveSuffixTree(T):
         current = S
         suffix = T[i:]
         for char in suffix:
-
-
-
-
-
-
-
-
-
-
-    
-    for i in range(len(T)):
-        # Étape 3 : Insertion du suffixe caractère par caractère
-        current = S
-        suffix = T[i:]
-        for char in suffix:
             if char not in current.children:
                 current.children[char] = Node()
             current = current.children[char]
-
-    # 5-9: for v node of S do if v has a single child then Merge v with its child
+    
+    # for v node of S do if v has a single child then Merge v with its child   
     def compress_tree(v):
-        # On utilise une liste des labels pour éviter les erreurs de modification pendant l'itération
+
         labels = list(v.children.keys())
-        
+
         for label in labels:
             child = v.children[label]
-            
-            # On traite d'abord la descendance (approche récursive)
+
             compress_tree(child)
             
-            # Étape 6-7 : Si l'enfant (u) n'a qu'un seul fils, on fusionne l'arête
-            # Selon le schéma : v --"ab"--> u --"bc"--> grandchild => v --"abbc"--> grandchild
+            # Si l'enfant n'a qu'un seul fils, on fusionne
             if len(child.children) == 1:
                 grandchild_label = list(child.children.keys())[0]
                 grandchild_node = child.children[grandchild_label]
                 
-                # Fusion des étiquettes (Merge)
+                # Fusion
                 new_label = label + grandchild_label
                 v.children[new_label] = grandchild_node
                 
-                # On supprime l'ancien lien vers l'enfant intermédiaire
+                # On supprime l'ancien lien vers l'enfant
                 del v.children[label]
 
     compress_tree(S)
     
-    # 10: return S
     return S
 
 def afficher_arbre(node, indent=""):
@@ -85,8 +66,27 @@ def afficher_arbre(node, indent=""):
 
 # --- Test de l'algorithme ---
 if __name__ == "__main__":
-    texte_test = "banana"
+    texte_test = "abac"
     print(f"Algorithme NaiveSuffixTree pour : '{texte_test}'")
     
     suffix_tree = NaiveSuffixTree(texte_test)
     afficher_arbre(suffix_tree)
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+       
+            
+            
+            
