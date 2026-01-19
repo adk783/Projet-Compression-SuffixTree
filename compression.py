@@ -1,6 +1,6 @@
 import suffix_tree as st
 
-# �TAPE 1 : Calcul des cv
+# ETAPE 1 : Calcul des cv
 def compute_cv(node):
     """
     Calcule la position de la premiere occurrence (cv) pour chaque noeud.
@@ -28,7 +28,7 @@ def compute_cv(node):
     return min_pos
 
 
-# �TAPE 2 : La Fonction de Recherche du Meilleur Match
+# ETAPE 2 : La Fonction de Recherche du Meilleur Match
 def find_longest_match(root, text, current_index):
     """
     Trouve la plus longue chaine dans l'arbre qui respecte la condition temporelle.
@@ -91,7 +91,7 @@ def find_longest_match(root, text, current_index):
     return longueur_match, position_depart
 
 
-# �TAPE 3 : La Boucle Principale de Compression
+# ETAPE 3 : La Boucle Principale de Compression
 def compress(text_input):
     """
     Fonction principale.
