@@ -1,6 +1,6 @@
 import suffix_tree as st
 
-# ÉTAPE 1 : Calcul des cv
+# ï¿½TAPE 1 : Calcul des cv
 def compute_cv(node):
     """
     Calcule la position de la premiere occurrence (cv) pour chaque noeud.
@@ -12,10 +12,15 @@ def compute_cv(node):
 
     min_pos = float('inf')
     
-    for child in node.children:
+    if isinstance(node.children, dict):
+        iterator = node.children.values() 
+    else:
+        iterator = node.children 
+    
+    for child in iterator:
         if child is not None:
             valeur_enfant = compute_cv(child)
-            # Mise à jour du minimum
+            # Mise ï¿½ jour du minimum
             if valeur_enfant < min_pos:
                 min_pos = valeur_enfant
     
@@ -23,7 +28,7 @@ def compute_cv(node):
     return min_pos
 
 
-# ÉTAPE 2 : La Fonction de Recherche du Meilleur Match
+# ï¿½TAPE 2 : La Fonction de Recherche du Meilleur Match
 def find_longest_match(root, text, current_index):
     """
     Trouve la plus longue chaine dans l'arbre qui respecte la condition temporelle.
@@ -38,7 +43,13 @@ def find_longest_match(root, text, current_index):
             break
             
         char_code = ord(text[current_index + longueur_match])
-        child = current_node.children[char_code]
+        if isinstance(current_node.children, dict):
+            child = current_node.children.get(char_code)
+        else:
+            try:
+                child = current_node.children[char_code]
+            except IndexError:
+                child = None
         
         if child is None:
             break
@@ -80,16 +91,14 @@ def find_longest_match(root, text, current_index):
     return longueur_match, position_depart
 
 
-# ÉTAPE 3 : La Boucle Principale de Compression
+# ï¿½TAPE 3 : La Boucle Principale de Compression
 def compress(text_input):
     """
     Fonction principale.
     """
     
-    print("Construction de l'arbre...")
     st.build_suffix_tree(text_input)
     
-    print("Calcul des CV (Pre-traitement)...")
     compute_cv(st.root)
     
     i = 0

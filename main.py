@@ -8,6 +8,9 @@ import urllib.request
 import re
 import unicodedata
 
+import suffix_tree as algo_ukkonen       # L'algo rapide (O(N))
+import naif_suffix_tree as algo_naif    # L'algo lent (O(N^2))
+
 def creer_fichiers_test():
     """Cree des fichiers de tailles variees pour le test."""
     print("Creation des fichiers de test sur le disque")
@@ -80,15 +83,27 @@ def lancer_test(nom_fichier):
     taille_originale = len(texte)
     print(f"Taille originale : {taille_originale} caracteres")
 
-    debut = time.time()
+    # Naif
+    compression.st = algo_naif 
+    debut_naif = time.time()
+    try:
+        _ = compression.compress(texte)
+    except Exception as e:
+        print(f"Erreur Naif : {e}")
+        return
+    fin_naif = time.time()
+    temps_naif = fin_naif - debut_naif
+
+    # Ukkonen
+    compression.st = algo_ukkonen
+    debut_ukkonen = time.time()
     try:
         resultat = compression.compress(texte)
     except Exception as e:
-        print(f"Erreur : {e}")
+        print(f"Erreur Ukkonen : {e}")
         return
-    fin = time.time()
-    
-    temps_execution = fin - debut
+    fin_ukkonen = time.time()
+    temps_ukkonen = fin_ukkonen - debut_ukkonen
 
     nb_tokens = len(resultat)
     nb_copies = 0
@@ -108,7 +123,13 @@ def lancer_test(nom_fichier):
     
     print(f" -> Fichier resultat cree : {nom_sortie}")
 
-    print(f"Temps de compression : {temps_execution:.4f} secondes")
+    print(f"Temps de compression NAIF    : {temps_naif:.4f} secondes")
+    print(f"Temps de compression UKKONEN : {temps_ukkonen:.4f} secondes")
+
+    if temps_ukkonen > 0:
+        ratio = temps_naif / temps_ukkonen
+        print(f" -> Acceleration             : x{ratio:.1f}")
+
     print(f"RESULTATS :")
     print(f"   - Caracteres bruts gardes : {nb_litteraux}")
     print(f"   - Remplacements (Copies)  : {nb_copies}")
