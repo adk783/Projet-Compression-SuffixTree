@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 import compression
 import os
 import time 
+import suffix_tree as st
+import importlib
 
 def creer_fichiers_test():
     """Cree des fichiers de tailles variees pour le test."""
@@ -20,9 +23,26 @@ def creer_fichiers_test():
         paragraphe = "Ceci est un paragraphe de test qui va se repeter encore et encore pour valider la compression Ziv-Lempel via Suffix Tree. "
         f.write(paragraphe * 500)
 
+    with open("test_ziv_lempel.txt", "w", encoding="utf-8") as f:
+        texte_lz = """
+        abraham lempel et jacob ziv sont les inventeurs de la compression sans perte.
+        ils ont publie leur algorithme celebre dans les annees soixante dix.
+        le principe est de remplacer des repetitions par des references vers le passe.
+        si le mot algorithme apparait deux fois la deuxieme fois on met un lien.
+        cela permet de reduire la taille du fichier sans perdre aucune information.
+        le suffix tree est une structure de donnees puissante pour accelerer ce processus.
+        au lieu de chercher lentement dans tout le texte le suffix tree trouve les motifs instantanement.
+        cette technique est utilisee aujourdhui dans les formats zip png et gif.
+        cest une revolution pour le stockage de donnees et la transmission sur internet.
+        le dictionnaire se construit dynamiquement pendant la lecture du flux de donnees.
+        """
+        f.write(texte_lz.replace('\n', ' ').strip().lower())
+
     print("Fichiers generes avec succes\n")
 
 def lancer_test(nom_fichier):
+    global st 
+    st = importlib.reload(st)
     print(f"{'='*60}")
     print(f"TEST SUR : {nom_fichier}")
     
@@ -80,3 +100,4 @@ if __name__ == "__main__":
     lancer_test("test_phrase.txt")
     lancer_test("test_adn.txt")
     lancer_test("test_big.txt")
+    lancer_test("test_ziv_lempel.txt")
