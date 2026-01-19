@@ -4,10 +4,13 @@ import os
 import time 
 import suffix_tree as st
 import importlib
+import urllib.request
+import re
+import unicodedata
 
 def creer_fichiers_test():
     """Cree des fichiers de tailles variees pour le test."""
-    print("Creation des fichiers de test sur le disque...")
+    print("Creation des fichiers de test sur le disque")
     
     with open("test_banana.txt", "w", encoding="utf-8") as f:
         f.write("banananana")
@@ -37,6 +40,27 @@ def creer_fichiers_test():
         le dictionnaire se construit dynamiquement pendant la lecture du flux de donnees.
         """
         f.write(texte_lz.replace('\n', ' ').strip().lower())
+
+    print(" Telechargement et nettoyage du livre 'Arsene Lupin'...")
+    try:
+        url = "https://www.gutenberg.org/cache/epub/32854/pg32854.txt"
+        with urllib.request.urlopen(url) as response:
+            data = response.read().decode('utf-8')
+        
+        data = data.lower()
+        data = unicodedata.normalize('NFD', data)
+        data = data.encode('ascii', 'ignore').decode('utf-8')
+        data_safe = re.sub(r'[^a-z ]', '', data)
+        data_safe = re.sub(r' +', ' ', data_safe)
+        taille_max = 50000 
+        data_final = data_safe[:taille_max]
+
+        with open("test_livre.txt", "w", encoding="utf-8") as f:
+            f.write(data_final)
+        print(f"   [OK] Livre genere : {len(data_final)} caracteres.")
+
+    except Exception as e:
+        print(f"   [ERREUR] Impossible de telecharger le livre : {e}")
 
     print("Fichiers generes avec succes\n")
 
@@ -101,3 +125,4 @@ if __name__ == "__main__":
     lancer_test("test_adn.txt")
     lancer_test("test_big.txt")
     lancer_test("test_ziv_lempel.txt")
+    lancer_test("test_livre.txt")
