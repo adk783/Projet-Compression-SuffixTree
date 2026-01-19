@@ -1,12 +1,15 @@
 # Ziv-Lempel Compression with Suffix Trees
 
-## Description
-This project implements a text compression tool based on the **Ziv-Lempel algorithm**.
-Instead of a linear search, we utilize a **Suffix Tree** to efficiently find repeated patterns in the text.
+## 📄 Description
+This project implements a **lossless text compression tool** based on the **Ziv-Lempel algorithm (LZ77)**.
 
-## How to run
-1. Install Python 3.
-2. Run the main script: `python main.py`
+Unlike naive implementations that scan the past linearly (O(n^2)), we utilize a **Suffix Tree built with Ukkonen's Algorithm**. This allows us to find the longest repeated patterns in **Linear Time (O(n))**, making it highly efficient for large datasets like DNA sequences.
+
+## 🚀 How to run
+1. Ensure you have **Python 3** installed.
+2. Run the main script:
+   ```bash
+   python main.py
 
 ## Authors
 - Leonardo DIB
