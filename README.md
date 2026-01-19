@@ -7,7 +7,6 @@ Instead of a linear search, we utilize a **Suffix Tree** to efficiently find rep
 ## How to run
 1. Install Python 3.
 2. Run the main script: `python main.py`
-3. Follow the instructions to select a file to compress.
 
 ## Authors
 - Leonardo DIB
