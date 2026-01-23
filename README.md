@@ -10,7 +10,7 @@ Instead of a linear search, we utilize a **Suffix Tree** to efficiently find rep
 3. Follow the instructions to select a file to compress.
 
 ## Authors
-- Leonardo DIB
-- Raphaël DUCOURNAU
-- Antoine DUPUY
-- Adam ZEH
+- Leonardo D.
+- Raphaël D.
+- Antoine D.
+- A.Z.

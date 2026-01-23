@@ -1,121 +1,119 @@
-import suffix_tree as st
+"""
+Compression Ziv-Lempel via Suffix Tree
+"""
+from suffix_tree import SuffixTree
 
-# �TAPE 1 : Calcul des cv
 def compute_cv(node):
     """
-    Calcule la position de la premiere occurrence (cv) pour chaque noeud.
-    cv = plus petit index de suffixe dans le sous-arbre.
+    Calcule C_v pour chaque noeud par un parcours DFS (Post-order).
+    C_v = le plus petit index de suffixe présent dans le sous-arbre du noeud.
+    Cela permet de savoir si une branche contient une occurrence apparue dans le passé.
     """
-    if node.suffix_index != -1:
+    # Cas de base : c'est une feuille, son Cv est son propre index
+    if not node.children:
         node.cv = node.suffix_index
         return node.cv
-
-    min_pos = float('inf')
     
-    if isinstance(node.children, dict):
-        iterator = node.children.values() 
-    else:
-        iterator = node.children 
+    # Cas récursif : le min des enfants
+    min_cv = float('inf')
     
-    for child in iterator:
-        if child is not None:
-            valeur_enfant = compute_cv(child)
-            # Mise � jour du minimum
-            if valeur_enfant < min_pos:
-                min_pos = valeur_enfant
-    
-    node.cv = min_pos
-    return min_pos
+    for child in node.children.values():
+        child_cv = compute_cv(child)
+        if child_cv < min_cv:
+            min_cv = child_cv
+            
+    node.cv = min_cv
+    return min_cv
 
-
-# �TAPE 2 : La Fonction de Recherche du Meilleur Match
-def find_longest_match(root, text, current_index):
+def find_longest_match(tree, current_pos):
     """
-    Trouve la plus longue chaine dans l'arbre qui respecte la condition temporelle.
-    Condition : l'occurrence trouvee doit etre dans le passe (cv < current_index).
+    Cherche la plus longue sous-chaîne dans l'arbre qui commence à current_pos,
+    mais qui est deja apparue avant (grâce à C_v).
+    Retourne (longueur du match, position de début du match dans le texte)
     """
-    current_node = root
-    longueur_match = 0
-    position_depart = -1
+    node = tree.root
+    total_matched = 0
+    best_match_pos = -1
     
+    # On navigue dans l'arbre tant qu'on peut
     while True:
-        if current_index + longueur_match >= len(text):
+        # On ne doit pas dépasser la fin du texte
+        if current_pos + total_matched >= tree.size - 1:
             break
             
-        char_code = ord(text[current_index + longueur_match])
-        if isinstance(current_node.children, dict):
-            child = current_node.children.get(char_code)
-        else:
-            try:
-                child = current_node.children[char_code]
-            except IndexError:
-                child = None
+        # Caractère qu'on cherche à matcher
+        next_char = tree.text[current_pos + total_matched]
         
-        if child is None:
+        # Si pas d'arête pour ce caractère, on s'arrête
+        if next_char not in node.children:
             break
             
-        if child.cv >= current_index:
+        child = node.children[next_char]
+         
+        # Condition importante : on ne peut descendre que si cette branchecontient une occurrence qui apparait avant current_pos
+        if child.cv >= current_pos:
             break
-        
+            
+        # On parcourt l'arête caractère par caractère
         edge_start = child.start
-        edge_end = child.end[0]
+        edge_end = child.end[0] if isinstance(child.end, list) else child.end
         edge_length = edge_end - edge_start + 1
         
-        match_count = 0
-        match_total = True
+        chars_matched = 0
         
-        for k in range(edge_length):
-            idx_text = current_index + longueur_match + k
-            idx_edge = edge_start + k
+        for i in range(edge_length):
+            text_idx = current_pos + total_matched
+            edge_idx = edge_start + i
             
-            if idx_text >= len(text):
-                match_total = False
+            # On ne dépasse pas la fin
+            if text_idx >= tree.size - 1:
                 break
-                            
-            if text[idx_text] != st.text[idx_edge]:
-                match_total = False
+                
+            # On compare les caractères
+            if tree.text[text_idx] != tree.text[edge_idx]:
                 break
+                
+            chars_matched += 1
+            total_matched += 1
             
-            match_count += 1
-            
-        if match_total:
-            longueur_match += edge_length
-            current_node = child
-            position_depart = child.cv
-            
+        # Si on a matché toute l'arête, on descend vers l'enfant
+        if chars_matched == edge_length:
+            node = child
+            best_match_pos = child.cv  # On garde la position
         else:
-            longueur_match += match_count
-            position_depart = child.cv 
+            # Match partiel, on s'arrête
+            if chars_matched > 0:
+                best_match_pos = child.cv
             break
             
-    return longueur_match, position_depart
+    return total_matched, best_match_pos
 
-
-# �TAPE 3 : La Boucle Principale de Compression
 def compress(text_input):
     """
-    Fonction principale.
+    Exécute la compression LZ77 en utilisant le Suffix Tree.
+    Retourne une liste mixte de caractères et de tuples (position, longueur).
     """
     
-    st.build_suffix_tree(text_input)
+    # Construction de l'arbre des suffixes
+    tree = SuffixTree(text_input)
     
-    compute_cv(st.root)
+    # Annotation des C_v pour tous les noeuds
+    compute_cv(tree.root)
     
-    i = 0
-    resultat = []
-    n = len(text_input)
+    compressed = []
+    pos = 0
+    text_length = tree.size - 1 
     
-    while i < n:
-        longueur, start_pos = find_longest_match(st.root, text_input, i)
+    while pos < text_length:
+        match_length, match_start = find_longest_match(tree, pos)
         
-        if longueur > 0:
-            resultat.append( (start_pos, longueur) )
-            
-            i = i + longueur
-            
+        if match_length > 0:
+            # On a trouvé une répétition passée
+            compressed.append((match_start, match_length))
+            pos += match_length
         else:
-            resultat.append( text_input[i] )
+            # Pas de répétition trouvée, on écrit le caractère brut
+            compressed.append(tree.text[pos])
+            pos += 1
             
-            i = i + 1
-            
-    return resultat
+    return compressed
