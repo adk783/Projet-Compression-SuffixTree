@@ -12,7 +12,7 @@ Unlike naive implementations that scan the past linearly (O(n^2)), we utilize a 
    python main.py
 
 ## Authors
-- Leonardo DIB
-- Raphaël DUCOURNAU
-- Antoine DUPUY
-- Adam ZEH
+- Leonardo D.
+- Raphaël D.
+- Antoine D.
+- A.Z.
