@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import compression
 import os
 import time 
@@ -7,9 +6,13 @@ import importlib
 import urllib.request
 import re
 import unicodedata
+import sys
 
-import suffix_tree as algo_ukkonen       # L'algo rapide (O(N))
-import naif_suffix_tree as algo_naif    # L'algo lent (O(N^2))
+import suffix_tree as algo_ukkonen       # L'algo rapide O(N)
+import naif_suffix_tree as algo_naif    # L'algo lent O(N^2)
+
+# Augmentation de la limite de recursion pour l'algo Naif
+sys.setrecursionlimit(50000)
 
 def creer_fichiers_test():
     """Cree des fichiers de tailles variees pour le test."""
@@ -55,7 +58,7 @@ def creer_fichiers_test():
         data = data.encode('ascii', 'ignore').decode('utf-8')
         data_safe = re.sub(r'[^a-z ]', '', data)
         data_safe = re.sub(r' +', ' ', data_safe)
-        taille_max = 50000 
+        taille_max = 20000 
         data_final = data_safe[:taille_max]
 
         with open("test_livre.txt", "w", encoding="utf-8") as f:
@@ -63,13 +66,13 @@ def creer_fichiers_test():
         print(f"   [OK] Livre genere : {len(data_final)} caracteres.")
 
     except Exception as e:
-        print(f"   [ERREUR] Impossible de telecharger le livre : {e}")
+        print(f"   ERREUR Impossible de telecharger le livre : {e}")
 
     print("Fichiers generes avec succes\n")
 
 def lancer_test(nom_fichier):
-    global st 
-    st = importlib.reload(st)
+    global algo_ukkonen
+    algo_ukkonen = importlib.reload(algo_ukkonen)
     print(f"{'='*60}")
     print(f"TEST SUR : {nom_fichier}")
     
@@ -84,18 +87,21 @@ def lancer_test(nom_fichier):
     print(f"Taille originale : {taille_originale} caracteres")
 
     # Naif
-    compression.st = algo_naif 
-    debut_naif = time.time()
-    try:
-        _ = compression.compress(texte)
-    except Exception as e:
-        print(f"Erreur Naif : {e}")
-        return
-    fin_naif = time.time()
-    temps_naif = fin_naif - debut_naif
+    if taille_originale < 3000:
+        compression.SuffixTree = algo_naif.SuffixTree 
+        debut_naif = time.time()
+        try:
+            _ = compression.compress(texte)
+        except Exception as e:
+            print(f"Erreur Naif : {e}")
+            return
+        fin_naif = time.time()
+        temps_naif = fin_naif - debut_naif
+    else : 
+        print("Algo NAIF ignore, fichier trop volumineux")
 
     # Ukkonen
-    compression.st = algo_ukkonen
+    compression.SuffixTree = algo_ukkonen.SuffixTree
     debut_ukkonen = time.time()
     try:
         resultat = compression.compress(texte)
@@ -123,10 +129,11 @@ def lancer_test(nom_fichier):
     
     print(f" -> Fichier resultat cree : {nom_sortie}")
 
-    print(f"Temps de compression NAIF    : {temps_naif:.4f} secondes")
+    if taille_originale < 3000:
+        print(f"Temps de compression NAIF    : {temps_naif:.4f} secondes")
     print(f"Temps de compression UKKONEN : {temps_ukkonen:.4f} secondes")
 
-    if temps_ukkonen > 0:
+    if temps_ukkonen > 0 and taille_originale < 3000:
         ratio = temps_naif / temps_ukkonen
         print(f" -> Acceleration             : x{ratio:.1f}")
 
