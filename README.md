@@ -18,7 +18,7 @@ Instead of a slow linear search, we use a **Suffix Tree** (constructed via **Ukk
    python main.py
 
 ## Authors
-- Leonardo DIB
-- Raphaël DUCOURNAU
-- Antoine DUPUY
-- Adam ZEH
+- Leonardo D.
+- Raphaël D.
+- Antoine D.
+- A.Z.
